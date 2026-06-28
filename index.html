@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hub da Operação</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css?v=20260628-3" />
+  </head>
+  <body>
+    <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Ocultar menu">Menu</button>
+    <div id="appShell" class="app-shell">
+      <aside class="sidebar" aria-label="Navegação principal">
+        <div class="brand">
+          <span class="brand-mark">OP</span>
+          <div>
+            <strong>Hub Operação</strong>
+            <small>Controle financeiro</small>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <a href="#dashboard" class="active" data-view="dashboard">Dashboard</a>
+          <a href="#detalhamento" data-view="detail">Detalhamento</a>
+          <a href="#historico" data-view="history">Histórico</a>
+        </nav>
+
+        <div class="period-card">
+          <label for="periodMode">Visão dos totais</label>
+          <select id="periodMode">
+            <option value="month">Mês selecionado</option>
+            <option value="year">Ano inteiro</option>
+            <option value="custom">Intervalo específico</option>
+          </select>
+          <label class="period-year">
+            Ano
+            <input id="yearInput" type="number" min="2020" max="2100" step="1" />
+          </label>
+          <div id="customRange" class="range-fields" hidden>
+            <label>
+              De
+              <input id="rangeStart" type="date" />
+            </label>
+            <label>
+              Até
+              <input id="rangeEnd" type="date" />
+            </label>
+          </div>
+        </div>
+
+        <div class="month-card">
+          <label for="monthInput">Mês de lançamento</label>
+          <input id="monthInput" type="month" />
+        </div>
+      </aside>
+
+      <main>
+        <div id="dashboardView" class="app-view active-view">
+        <section id="painel" class="topbar hero-panel">
+          <div class="hero-copy">
+            <p class="eyebrow">Resumo em tempo real</p>
+            <h1>Operação de vendas, tráfego e caixa</h1>
+            <p id="periodSubtitle" class="hero-subtitle">Veja resultado, caixa e metas do mês em uma única tela.</p>
+          </div>
+          <div class="hero-stats" aria-label="Resumo rápido">
+            <div class="goal-stat">
+              <label class="goal-editor">
+              <span id="goalMiniLabel">Meta do mês</span>
+              <input id="goalMiniInput" type="number" min="0" step="0.01" aria-label="Meta de lucro do mÃªs" />
+              </label>
+              <div class="goal-stat-progress">
+                <small id="heroGoalPercent">0% alcançado</small>
+                <div class="mini-progress">
+                  <span id="heroGoalBar"></span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <span>Sobra em caixa</span>
+              <strong id="cashMini">R$ 0,00</strong>
+            </div>
+            <div>
+              <span>Tráfego</span>
+              <strong id="trafficMini">R$ 0,00</strong>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="exportBtn" type="button">CSV</button>
+            <button id="backupBtn" type="button">Backup</button>
+            <button id="restoreBtn" type="button" class="ghost">Restaurar</button>
+            <button id="resetBtn" type="button" class="ghost">Limpar mês</button>
+            <input id="restoreInput" type="file" accept="application/json" hidden />
+          </div>
+        </section>
+
+        <section class="metrics-grid" aria-label="Indicadores principais">
+          <article class="metric revenue-card">
+            <span class="metric-icon">R</span>
+            <span>Receita</span>
+            <strong id="revenueTotal">R$ 0,00</strong>
+            <small id="revenueDays">0 dias com venda</small>
+          </article>
+          <article class="metric danger">
+            <span class="metric-icon">G</span>
+            <span>Gastos</span>
+            <strong id="expenseTotal">R$ 0,00</strong>
+            <small>Ads, ferramentas e operação</small>
+          </article>
+          <article class="metric good">
+            <span class="metric-icon">L</span>
+            <span>Lucro total</span>
+            <strong id="profitTotal">R$ 0,00</strong>
+            <small id="profitGoalText">0% da meta</small>
+          </article>
+          <article class="metric">
+            <span class="metric-icon">%</span>
+            <span>ROI</span>
+            <strong id="roiTotal">0%</strong>
+            <small>Lucro dividido pelos gastos</small>
+          </article>
+        </section>
+
+        <section class="daily-insights-grid" aria-label="Resumo do dia">
+          <article class="panel today-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Hoje</p>
+                <h2 id="todayDateLabel">Resultado do dia</h2>
+              </div>
+              <span id="todayStatus" class="soft-pill">Sem movimento</span>
+            </div>
+            <div class="today-profit">
+              <span>Lucro de hoje</span>
+              <strong id="todayProfit">R$ 0,00</strong>
+            </div>
+            <div class="today-mini-grid">
+              <div>
+                <span>Receita</span>
+                <strong id="todayRevenue">R$ 0,00</strong>
+              </div>
+              <div>
+                <span>Gastos</span>
+                <strong id="todayExpense">R$ 0,00</strong>
+              </div>
+              <div>
+                <span>ROI</span>
+                <strong id="todayRoi">0%</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel daily-summary-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Resumo por dia</p>
+                <h2>Destaques do período</h2>
+              </div>
+            </div>
+            <div class="daily-summary-list">
+              <div>
+                <span>Melhor dia</span>
+                <strong id="bestDayValue">R$ 0,00</strong>
+                <small id="bestDayLabel">--</small>
+              </div>
+              <div>
+                <span>Pior dia</span>
+                <strong id="worstDayValue">R$ 0,00</strong>
+                <small id="worstDayLabel">--</small>
+              </div>
+              <div>
+                <span>Maior gasto</span>
+                <strong id="topExpenseValue">R$ 0,00</strong>
+                <small id="topExpenseLabel">--</small>
+              </div>
+              <div>
+                <span>Melhor ROI</span>
+                <strong id="bestRoiValue">0%</strong>
+                <small id="bestRoiLabel">--</small>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="work-grid dashboard-work">
+          <div class="panel chart-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Performance diária</p>
+                <h2>Lucro x gastos</h2>
+              </div>
+            </div>
+            <canvas id="profitChart" width="920" height="300" aria-label="Gráfico de lucro e gastos"></canvas>
+          </div>
+
+        </section>
+        </div>
+
+        <div id="historyView" class="app-view">
+        <section class="history-hero panel">
+          <div>
+            <p class="eyebrow">Histórico de meses</p>
+            <h2>Evolução da operação</h2>
+          </div>
+          <span id="historyRange" class="soft-pill">Meses salvos</span>
+        </section>
+
+        <section class="history-kpis" aria-label="Resumo histórico">
+          <article class="metric good">
+            <span class="metric-icon">L</span>
+            <span>Lucro acumulado</span>
+            <strong id="historyTotalProfit">R$ 0,00</strong>
+            <small id="historyMonthCount">0 meses salvos</small>
+          </article>
+          <article class="metric revenue-card">
+            <span class="metric-icon">R</span>
+            <span>Receita acumulada</span>
+            <strong id="historyTotalRevenue">R$ 0,00</strong>
+            <small id="historyTotalExpense">R$ 0,00 em gastos</small>
+          </article>
+          <article class="metric">
+            <span class="metric-icon">↑</span>
+            <span>Melhor mês</span>
+            <strong id="historyBestMonthValue">R$ 0,00</strong>
+            <small id="historyBestMonthLabel">--</small>
+          </article>
+          <article class="metric">
+            <span class="metric-icon">%</span>
+            <span>ROI médio</span>
+            <strong id="historyAverageRoi">0%</strong>
+            <small>Lucro dividido pelos gastos</small>
+          </article>
+        </section>
+
+        <section class="panel history-table-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Meses registrados</p>
+              <h2>Resumo mensal</h2>
+            </div>
+          </div>
+          <div class="table-scroll history-scroll">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Mês</th>
+                  <th>Receita</th>
+                  <th>Gastos</th>
+                  <th>Lucro</th>
+                  <th>ROI</th>
+                  <th>Meta</th>
+                  <th>Progresso</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="historyRows"></tbody>
+            </table>
+          </div>
+        </section>
+        </div>
+
+        <div id="detailView" class="app-view">
+        <section id="detalhamento" class="detail-hero panel">
+          <div>
+            <p class="eyebrow">Detalhamento da operação</p>
+            <h2>Lançamentos, caixa e metas</h2>
+          </div>
+          <span class="soft-pill">Dados do mês selecionado</span>
+        </section>
+
+        <section class="work-grid detail-work">
+          <form id="quickForm" class="panel quick-form">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Lançamento rápido</p>
+                <h2>Adicionar valor</h2>
+              </div>
+            </div>
+            <label>
+              Data
+              <input id="entryDate" type="date" required />
+            </label>
+            <label>
+              Tipo
+              <select id="entryType">
+                <option value="receita">Receita</option>
+                <option value="gastos">Gastos</option>
+                <option value="reembolso">Reembolso</option>
+                <option value="imposto">Imposto</option>
+                <option value="pagamento">Pagamento</option>
+                <option value="recebedor">Recebido</option>
+                <option value="saque">Saque</option>
+                <option value="trafego">Invest. tráfego</option>
+              </select>
+            </label>
+            <label>
+              Valor
+              <input id="entryAmount" type="number" min="0" step="0.01" placeholder="0,00" required />
+            </label>
+            <label>
+              Observação
+              <input id="entryNote" type="text" placeholder="ex: Meta Ads, fornecedor, Pix..." />
+            </label>
+            <button type="submit">Salvar lançamento</button>
+          </form>
+        </section>
+
+        <section id="diario" class="panel table-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Controle diário</p>
+              <h2>Resultado da operação</h2>
+            </div>
+            <span id="tableCount" class="soft-pill">31 dias</span>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Gastos</th>
+                  <th>Receita</th>
+                  <th>Reembolso</th>
+                  <th>Imposto</th>
+                  <th>Lucro</th>
+                  <th>ROI</th>
+                  <th>Observações</th>
+                </tr>
+              </thead>
+              <tbody id="dailyRows"></tbody>
+              <tfoot>
+                <tr>
+                  <th>Total</th>
+                  <th id="totalGastos">R$ 0,00</th>
+                  <th id="totalReceita">R$ 0,00</th>
+                  <th id="totalReembolso">R$ 0,00</th>
+                  <th id="totalImposto">R$ 0,00</th>
+                  <th id="totalLucro">R$ 0,00</th>
+                  <th id="totalRoi">0%</th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+
+        <section id="caixa" class="work-grid">
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Fluxo de caixa</p>
+                <h2>Pagamentos e recebimentos</h2>
+              </div>
+            </div>
+            <div class="cash-grid">
+              <label>
+                Data
+                <input id="cashDate" type="date" />
+              </label>
+              <label>
+                Pagamento
+                <input id="cashPayment" type="number" min="0" step="0.01" />
+              </label>
+              <label>
+                Recebido
+                <input id="cashReceiver" type="number" min="0" step="0.01" />
+              </label>
+              <button id="cashAddBtn" type="button">Adicionar</button>
+            </div>
+            <div id="cashList" class="compact-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Distribuição</p>
+                <h2>Saque e tráfego</h2>
+              </div>
+            </div>
+            <div class="split-summary">
+              <div>
+                <span>Sobra de caixa</span>
+                <strong id="cashLeft">R$ 0,00</strong>
+              </div>
+              <div>
+                <span>Saque</span>
+                <strong id="withdrawTotal">R$ 0,00</strong>
+              </div>
+              <div>
+                <span>Invest. tráfego</span>
+                <strong id="trafficTotal">R$ 0,00</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="metas" class="panel goals-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Metas</p>
+              <h2>Objetivos do mês</h2>
+            </div>
+          </div>
+          <div class="goals-grid">
+            <label>
+              Meta de lucro
+              <input id="profitGoal" type="number" min="0" step="0.01" />
+            </label>
+            <label>
+              Distância/meta secundária
+              <input id="distanceGoal" type="number" min="0" step="0.01" />
+            </label>
+            <div class="progress-block">
+              <div class="progress-top">
+                <span>Progresso</span>
+                <strong id="goalPercent">0%</strong>
+              </div>
+              <div class="progress-track">
+                <span id="goalBar"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+        </div>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260628-3"></script>
+  </body>
+</html>

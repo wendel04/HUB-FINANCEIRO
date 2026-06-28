@@ -1,0 +1,17 @@
+COMO USAR O HUB
+
+1. Abra a pasta operacao-hub.
+2. Clique duas vezes em abrir-hub.bat.
+3. O hub abre no seu navegador em http://127.0.0.1:8765/
+
+SEUS DADOS
+
+- Os dados ficam salvos no navegador usado para abrir o hub.
+- Atualizar os arquivos do hub nao apaga os dados salvos.
+- Antes de uma mudanca grande, clique em "Backup dos dados".
+- Se trocar de navegador, computador ou perfil, use "Restaurar dados" com o arquivo de backup.
+
+IMPORTANTE
+
+- Evite clicar em "Limpar mes" se nao quiser apagar o mes selecionado.
+- Cada mes tem dados separados; mes novo comeca zerado automaticamente.

@@ -1,0 +1,10 @@
+{
+  "name": "hub-operacao",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dashboard financeiro para controle de operação, lucro, gastos e caixa.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
