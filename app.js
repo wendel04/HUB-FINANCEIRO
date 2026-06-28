@@ -21,6 +21,7 @@ const rangeEnd = document.querySelector("#rangeEnd");
 const dailyRows = document.querySelector("#dailyRows");
 const quickForm = document.querySelector("#quickForm");
 const navLinks = document.querySelectorAll("[data-view]");
+const themeToggle = document.querySelector("#themeToggle");
 const dashboardView = document.querySelector("#dashboardView");
 const detailView = document.querySelector("#detailView");
 const historyView = document.querySelector("#historyView");
@@ -42,6 +43,14 @@ function storageKey(month) {
 
 function isDataKey(key) {
   return key.startsWith("operacao-hub:") && /^\d{4}-\d{2}$/.test(key.replace("operacao-hub:", ""));
+}
+
+function applyTheme(theme) {
+  const selectedTheme = theme === "light" ? "light" : "dark";
+  document.body.dataset.theme = selectedTheme;
+  themeToggle?.setAttribute("aria-pressed", selectedTheme === "light" ? "true" : "false");
+  localStorage.setItem("operacao-hub:theme", selectedTheme);
+  drawChart();
 }
 
 function localDateString(date = new Date()) {
@@ -363,11 +372,11 @@ function renderMonthlyHistory() {
   const averageRoi = historyTotals.gastos > 0 ? historyTotals.lucro / historyTotals.gastos : 0;
   const bestMonth = summaries.reduce((best, item) => (!best || item.totals.lucro > best.totals.lucro ? item : best), null);
 
-  setText("#historyRange", `${summaries.length} ${summaries.length === 1 ? "mês salvo" : "meses salvos"}`);
+  setText("#historyRange", "Histórico");
   setText("#historyTotalProfit", money.format(historyTotals.lucro));
-  setText("#historyMonthCount", `${summaries.length} ${summaries.length === 1 ? "mês salvo" : "meses salvos"}`);
+  setText("#historyMonthCount", "");
   setText("#historyTotalRevenue", money.format(historyTotals.receita));
-  setText("#historyTotalExpense", `${money.format(historyTotals.gastos)} em gastos`);
+  setText("#historyTotalExpense", `Gastos ${money.format(historyTotals.gastos)}`);
   setText("#historyBestMonthValue", bestMonth ? money.format(bestMonth.totals.lucro) : money.format(0));
   setText("#historyBestMonthLabel", bestMonth ? formatMonthLabel(bestMonth.month) : "--");
   setText("#historyAverageRoi", pct.format(averageRoi));
@@ -405,8 +414,8 @@ function renderTotals() {
   setText("#expenseTotal", money.format(totals.gastos));
   setText("#profitTotal", money.format(totals.lucro));
   setText("#roiTotal", pct.format(roi));
-  setText("#revenueDays", `${totals.saleDays} dias com venda`);
-  setText("#profitGoalText", `${pct.format(goalRatio)} da meta`);
+  setText("#revenueDays", `${totals.saleDays} dias`);
+  setText("#profitGoalText", `${pct.format(goalRatio)} meta`);
 
   setText("#totalGastos", money.format(totals.gastos));
   setText("#totalReceita", money.format(totals.receita));
@@ -419,10 +428,10 @@ function renderTotals() {
   setText("#withdrawTotal", money.format(totals.saque));
   setText("#trafficTotal", money.format(totals.trafego));
   setText("#periodSubtitle", viewDescription);
-  setText("#goalMiniLabel", periodMode.value === "month" ? "Meta do mês" : "Meta do período");
+  setText("#goalMiniLabel", "Meta");
   document.querySelector("#goalMiniInput").value = state.profitGoal || "";
   document.querySelector("#goalMiniInput").disabled = !isEditableView;
-  setText("#heroGoalPercent", `${pct.format(goalRatio)} alcançado`);
+  setText("#heroGoalPercent", pct.format(goalRatio));
   document.querySelector("#heroGoalBar").style.width = `${Math.max(0, Math.min(goalRatio * 100, 100))}%`;
   setText("#cashMini", money.format(cashLeft));
   setText("#trafficMini", money.format(totals.trafego));
@@ -517,15 +526,14 @@ function drawChart() {
   const expenses = viewDays.map((day) => toNumber(day.gastos));
   const profits = viewDays.map(dayProfit);
   const maxValue = Math.max(100, ...profits.map(Math.abs), ...expenses);
+  const isLightTheme = document.body.dataset.theme === "light";
+  const labelColor = isLightTheme ? "#64748b" : "#8ea0b8";
+  const gridColor = isLightTheme ? "rgba(74, 94, 121, 0.14)" : "rgba(142, 160, 184, 0.16)";
+  const zeroLineColor = isLightTheme ? "rgba(74, 94, 121, 0.24)" : "rgba(142, 160, 184, 0.28)";
 
   ctx.clearRect(0, 0, width, height);
-  const background = ctx.createLinearGradient(0, 0, width, height);
-  background.addColorStop(0, "#111d2f");
-  background.addColorStop(1, "#0b1628");
-  ctx.fillStyle = background;
-  ctx.fillRect(0, 0, width, height);
 
-  ctx.strokeStyle = "rgba(142, 160, 184, 0.18)";
+  ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i += 1) {
     const y = padding + (plotHeight / 4) * i;
@@ -536,7 +544,7 @@ function drawChart() {
   }
 
   const zeroY = padding + plotHeight / 2;
-  ctx.strokeStyle = "rgba(142, 160, 184, 0.32)";
+  ctx.strokeStyle = zeroLineColor;
   ctx.beginPath();
   ctx.moveTo(padding, zeroY);
   ctx.lineTo(width - padding, zeroY);
@@ -549,12 +557,12 @@ function drawChart() {
   drawArea(profits, step, yFor, zeroY, "rgba(37, 209, 125, 0.16)");
   drawLine(profits, step, yFor, "#25d17d");
 
-  ctx.fillStyle = "#8ea0b8";
-  ctx.font = "700 12px system-ui";
+  ctx.fillStyle = labelColor;
+  ctx.font = "700 12px Poppins, system-ui, sans-serif";
   ctx.fillText("Lucro", padding, 20);
   ctx.fillStyle = "#25d17d";
   ctx.fillRect(padding + 42, 12, 16, 8);
-  ctx.fillStyle = "#8ea0b8";
+  ctx.fillStyle = labelColor;
   ctx.fillText("Gastos", padding + 72, 20);
   ctx.fillStyle = "#ff6b5e";
   ctx.fillRect(padding + 120, 12, 16, 8);
@@ -743,6 +751,10 @@ yearInput.addEventListener("input", render);
 rangeStart.addEventListener("change", render);
 rangeEnd.addEventListener("change", render);
 
+themeToggle?.addEventListener("click", () => {
+  applyTheme(document.body.dataset.theme === "light" ? "dark" : "light");
+});
+
 sidebarToggle.addEventListener("click", () => {
   const collapsed = appShell.classList.toggle("sidebar-collapsed");
   sidebarToggle.textContent = collapsed ? "Mostrar menu" : "Menu";
@@ -817,6 +829,7 @@ if (localStorage.getItem("operacao-hub:sidebar-collapsed") === "1") {
   sidebarToggle.setAttribute("aria-label", "Mostrar menu");
 }
 
+applyTheme(localStorage.getItem("operacao-hub:theme") || "dark");
 state = loadState(initialMonth);
 setDefaultDates();
 render();

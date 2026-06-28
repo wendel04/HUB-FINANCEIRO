@@ -7,28 +7,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css?v=20260628-3" />
+    <link rel="stylesheet" href="./styles.css?v=20260628-13" />
   </head>
   <body>
     <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Ocultar menu">Menu</button>
     <div id="appShell" class="app-shell">
       <aside class="sidebar" aria-label="Navegação principal">
-        <div class="brand">
-          <span class="brand-mark">OP</span>
-          <div>
-            <strong>Hub Operação</strong>
-            <small>Controle financeiro</small>
-          </div>
-        </div>
-
         <nav class="nav-list">
           <a href="#dashboard" class="active" data-view="dashboard">Dashboard</a>
           <a href="#detalhamento" data-view="detail">Detalhamento</a>
           <a href="#historico" data-view="history">Histórico</a>
         </nav>
 
+        <div class="theme-card theme-control" aria-label="Tema">
+          <span>Tema</span>
+          <div class="theme-toggle-row">
+            <small>Escuro</small>
+            <button id="themeToggle" class="theme-switch" type="button" aria-label="Alternar tema">
+              <span class="theme-side theme-dark">☾</span>
+              <span class="theme-knob"></span>
+              <span class="theme-side theme-light">☀</span>
+            </button>
+            <small>Claro</small>
+          </div>
+        </div>
+
         <div class="period-card">
-          <label for="periodMode">Visão dos totais</label>
+          <label for="periodMode">Visão</label>
           <select id="periodMode">
             <option value="month">Mês selecionado</option>
             <option value="year">Ano inteiro</option>
@@ -51,23 +56,33 @@
         </div>
 
         <div class="month-card">
-          <label for="monthInput">Mês de lançamento</label>
+          <label for="monthInput">Mês</label>
           <input id="monthInput" type="month" />
         </div>
       </aside>
 
       <main>
+        <header class="app-header">
+          <div class="page-brand">
+            <span class="brand-mark">OP</span>
+            <div>
+              <strong>Hub Operação</strong>
+              <small>Controle financeiro</small>
+            </div>
+          </div>
+        </header>
+
         <div id="dashboardView" class="app-view active-view">
         <section id="painel" class="topbar hero-panel">
           <div class="hero-copy">
-            <p class="eyebrow">Resumo em tempo real</p>
+            <p class="eyebrow">Resumo</p>
             <h1>Operação de vendas, tráfego e caixa</h1>
-            <p id="periodSubtitle" class="hero-subtitle">Veja resultado, caixa e metas do mês em uma única tela.</p>
+            <p id="periodSubtitle" class="hero-subtitle">Mês atual</p>
           </div>
           <div class="hero-stats" aria-label="Resumo rápido">
             <div class="goal-stat">
               <label class="goal-editor">
-              <span id="goalMiniLabel">Meta do mês</span>
+              <span id="goalMiniLabel">Meta</span>
               <input id="goalMiniInput" type="number" min="0" step="0.01" aria-label="Meta de lucro do mÃªs" />
               </label>
               <div class="goal-stat-progress">
@@ -78,7 +93,7 @@
               </div>
             </div>
             <div>
-              <span>Sobra em caixa</span>
+              <span>Caixa</span>
               <strong id="cashMini">R$ 0,00</strong>
             </div>
             <div>
@@ -106,11 +121,11 @@
             <span class="metric-icon">G</span>
             <span>Gastos</span>
             <strong id="expenseTotal">R$ 0,00</strong>
-            <small>Ads, ferramentas e operação</small>
+            <small>Operação</small>
           </article>
           <article class="metric good">
             <span class="metric-icon">L</span>
-            <span>Lucro total</span>
+            <span>Lucro</span>
             <strong id="profitTotal">R$ 0,00</strong>
             <small id="profitGoalText">0% da meta</small>
           </article>
@@ -118,7 +133,7 @@
             <span class="metric-icon">%</span>
             <span>ROI</span>
             <strong id="roiTotal">0%</strong>
-            <small>Lucro dividido pelos gastos</small>
+            <small>Lucro / gastos</small>
           </article>
         </section>
 
@@ -127,12 +142,12 @@
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">Hoje</p>
-                <h2 id="todayDateLabel">Resultado do dia</h2>
+                <h2 id="todayDateLabel">Dia</h2>
               </div>
               <span id="todayStatus" class="soft-pill">Sem movimento</span>
             </div>
             <div class="today-profit">
-              <span>Lucro de hoje</span>
+              <span>Lucro</span>
               <strong id="todayProfit">R$ 0,00</strong>
             </div>
             <div class="today-mini-grid">
@@ -154,28 +169,28 @@
           <article class="panel daily-summary-panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">Resumo por dia</p>
-                <h2>Destaques do período</h2>
+                <p class="eyebrow">Dias</p>
+                <h2>Destaques</h2>
               </div>
             </div>
             <div class="daily-summary-list">
               <div>
-                <span>Melhor dia</span>
+                <span>Melhor</span>
                 <strong id="bestDayValue">R$ 0,00</strong>
                 <small id="bestDayLabel">--</small>
               </div>
               <div>
-                <span>Pior dia</span>
+                <span>Pior</span>
                 <strong id="worstDayValue">R$ 0,00</strong>
                 <small id="worstDayLabel">--</small>
               </div>
               <div>
-                <span>Maior gasto</span>
+                <span>Gasto</span>
                 <strong id="topExpenseValue">R$ 0,00</strong>
                 <small id="topExpenseLabel">--</small>
               </div>
               <div>
-                <span>Melhor ROI</span>
+                <span>ROI</span>
                 <strong id="bestRoiValue">0%</strong>
                 <small id="bestRoiLabel">--</small>
               </div>
@@ -187,7 +202,7 @@
           <div class="panel chart-panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">Performance diária</p>
+                <p class="eyebrow">Performance</p>
                 <h2>Lucro x gastos</h2>
               </div>
             </div>
@@ -200,44 +215,44 @@
         <div id="historyView" class="app-view">
         <section class="history-hero panel">
           <div>
-            <p class="eyebrow">Histórico de meses</p>
-            <h2>Evolução da operação</h2>
+            <p class="eyebrow">Histórico</p>
+            <h2>Meses</h2>
           </div>
-          <span id="historyRange" class="soft-pill">Meses salvos</span>
+          <span id="historyRange" class="soft-pill">Histórico</span>
         </section>
 
-        <section class="history-kpis" aria-label="Resumo histórico">
+        <section class="history-kpis" aria-label="Histórico">
           <article class="metric good">
             <span class="metric-icon">L</span>
-            <span>Lucro acumulado</span>
+            <span>Lucro mensal</span>
             <strong id="historyTotalProfit">R$ 0,00</strong>
-            <small id="historyMonthCount">0 meses salvos</small>
+            <small id="historyMonthCount"></small>
           </article>
           <article class="metric revenue-card">
             <span class="metric-icon">R</span>
-            <span>Receita acumulada</span>
+            <span>Receita</span>
             <strong id="historyTotalRevenue">R$ 0,00</strong>
             <small id="historyTotalExpense">R$ 0,00 em gastos</small>
           </article>
           <article class="metric">
             <span class="metric-icon">↑</span>
-            <span>Melhor mês</span>
+            <span>Melhor</span>
             <strong id="historyBestMonthValue">R$ 0,00</strong>
             <small id="historyBestMonthLabel">--</small>
           </article>
           <article class="metric">
             <span class="metric-icon">%</span>
-            <span>ROI médio</span>
+            <span>ROI</span>
             <strong id="historyAverageRoi">0%</strong>
-            <small>Lucro dividido pelos gastos</small>
+            <small>Lucro / gastos</small>
           </article>
         </section>
 
         <section class="panel history-table-panel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Meses registrados</p>
-              <h2>Resumo mensal</h2>
+              <p class="eyebrow">Meses</p>
+              <h2>Resumo</h2>
             </div>
           </div>
           <div class="table-scroll history-scroll">
@@ -263,18 +278,18 @@
         <div id="detailView" class="app-view">
         <section id="detalhamento" class="detail-hero panel">
           <div>
-            <p class="eyebrow">Detalhamento da operação</p>
-            <h2>Lançamentos, caixa e metas</h2>
+            <p class="eyebrow">Detalhes</p>
+            <h2>Dados do mês</h2>
           </div>
-          <span class="soft-pill">Dados do mês selecionado</span>
+          <span class="soft-pill">Mês selecionado</span>
         </section>
 
         <section class="work-grid detail-work">
           <form id="quickForm" class="panel quick-form">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">Lançamento rápido</p>
-                <h2>Adicionar valor</h2>
+                <p class="eyebrow">Lançamento</p>
+                <h2>Adicionar</h2>
               </div>
             </div>
             <label>
@@ -302,15 +317,15 @@
               Observação
               <input id="entryNote" type="text" placeholder="ex: Meta Ads, fornecedor, Pix..." />
             </label>
-            <button type="submit">Salvar lançamento</button>
+            <button type="submit">Salvar</button>
           </form>
         </section>
 
         <section id="diario" class="panel table-panel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Controle diário</p>
-              <h2>Resultado da operação</h2>
+              <p class="eyebrow">Diário</p>
+              <h2>Resultado</h2>
             </div>
             <span id="tableCount" class="soft-pill">31 dias</span>
           </div>
@@ -349,8 +364,8 @@
           <div class="panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">Fluxo de caixa</p>
-                <h2>Pagamentos e recebimentos</h2>
+                <p class="eyebrow">Caixa</p>
+                <h2>Movimento</h2>
               </div>
             </div>
             <div class="cash-grid">
@@ -375,12 +390,12 @@
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">Distribuição</p>
-                <h2>Saque e tráfego</h2>
+                <h2>Destino</h2>
               </div>
             </div>
             <div class="split-summary">
               <div>
-                <span>Sobra de caixa</span>
+                <span>Caixa</span>
                 <strong id="cashLeft">R$ 0,00</strong>
               </div>
               <div>
@@ -388,7 +403,7 @@
                 <strong id="withdrawTotal">R$ 0,00</strong>
               </div>
               <div>
-                <span>Invest. tráfego</span>
+                <span>Tráfego</span>
                 <strong id="trafficTotal">R$ 0,00</strong>
               </div>
             </div>
@@ -399,16 +414,16 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Metas</p>
-              <h2>Objetivos do mês</h2>
+              <h2>Objetivos</h2>
             </div>
           </div>
           <div class="goals-grid">
             <label>
-              Meta de lucro
+              Lucro
               <input id="profitGoal" type="number" min="0" step="0.01" />
             </label>
             <label>
-              Distância/meta secundária
+              Meta secundária
               <input id="distanceGoal" type="number" min="0" step="0.01" />
             </label>
             <div class="progress-block">
@@ -426,6 +441,6 @@
       </main>
     </div>
 
-    <script src="./app.js?v=20260628-3"></script>
+    <script src="./app.js?v=20260628-13"></script>
   </body>
 </html>
