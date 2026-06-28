@@ -7,7 +7,7 @@ Dashboard financeiro para acompanhar receita, gastos, lucro, ROI, caixa, saque e
 Abra `abrir-hub.bat` ou rode:
 
 ```bash
-npm start
+npm run dev
 ```
 
 Depois acesse:
