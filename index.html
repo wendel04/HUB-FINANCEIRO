@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
@@ -6,70 +6,118 @@
     <title>Hub da Operação</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css?v=20260628-13" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css?v=20260628-24" />
   </head>
   <body>
-    <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Ocultar menu">Menu</button>
     <div id="appShell" class="app-shell">
       <aside class="sidebar" aria-label="Navegação principal">
-        <nav class="nav-list">
-          <a href="#dashboard" class="active" data-view="dashboard">Dashboard</a>
-          <a href="#detalhamento" data-view="detail">Detalhamento</a>
-          <a href="#historico" data-view="history">Histórico</a>
+        <div class="sidebar-brand">
+          <div class="page-brand editable-brand">
+            <label class="brand-photo-control" title="Trocar foto">
+              <span id="brandMark" class="brand-mark">OP</span>
+              <input id="brandPhotoInput" type="file" accept="image/*" />
+            </label>
+            <div class="brand-copy">
+              <strong id="brandNameLabel">Hub Operação</strong>
+              <small id="brandSubtitleLabel">Controle financeiro</small>
+            </div>
+            <button id="brandEditBtn" class="brand-edit-btn" type="button" aria-label="Editar hub">✎</button>
+          </div>
+
+          <div id="brandEditor" class="brand-editor" hidden>
+            <label>
+              Nome
+              <input id="brandNameInput" type="text" maxlength="28" autocomplete="off" />
+            </label>
+            <label>
+              Descrição
+              <input id="brandSubtitleInput" type="text" maxlength="34" autocomplete="off" />
+            </label>
+            <div class="brand-editor-actions">
+              <button id="brandSaveBtn" type="button">Salvar</button>
+              <button id="brandCancelBtn" type="button">Cancelar</button>
+              <button id="brandRemovePhotoBtn" type="button">Remover foto</button>
+            </div>
+          </div>
+
+          <button id="themeToggle" class="theme-switch sidebar-theme-switch" type="button" aria-label="Alternar tema">
+            <span class="theme-side theme-dark">☾</span>
+            <span class="theme-knob"></span>
+            <span class="theme-side theme-light">☀</span>
+          </button>
+        </div>
+
+        <nav class="nav-list sidebar-menu">
+          <details class="sidebar-section" open>
+            <summary>Dashboard</summary>
+            <div class="sidebar-submenu">
+              <a href="#dashboard" class="active" data-view="dashboard">Resumo principal</a>
+            </div>
+          </details>
+
+          <details class="sidebar-section">
+            <summary>Detalhamento</summary>
+            <div class="sidebar-submenu">
+              <a href="#detalhamento" data-view="detail">Lançamentos</a>
+            </div>
+          </details>
+
+          <details class="sidebar-section">
+            <summary>Histórico</summary>
+            <div class="sidebar-submenu">
+              <a href="#historico" data-view="history">Meses salvos</a>
+            </div>
+          </details>
+
+          <details class="sidebar-section vision-section" open>
+            <summary>Visão</summary>
+            <div class="sidebar-submenu sidebar-fields">
+              <label for="periodMode">
+                Total
+                <select id="periodMode">
+                  <option value="month">Mês selecionado</option>
+                  <option value="year">Ano inteiro</option>
+                  <option value="custom">Intervalo específico</option>
+                </select>
+              </label>
+              <label for="monthInput">
+                Período
+                <input id="monthInput" type="month" />
+              </label>
+              <label class="period-year">
+                Ano
+                <input id="yearInput" type="number" min="2020" max="2100" step="1" />
+              </label>
+              <div id="customRange" class="range-fields" hidden>
+                <label>
+                  De
+                  <input id="rangeStart" type="date" />
+                </label>
+                <label>
+                  Até
+                  <input id="rangeEnd" type="date" />
+                </label>
+              </div>
+            </div>
+          </details>
         </nav>
 
-        <div class="theme-card theme-control" aria-label="Tema">
-          <span>Tema</span>
-          <div class="theme-toggle-row">
-            <small>Escuro</small>
-            <button id="themeToggle" class="theme-switch" type="button" aria-label="Alternar tema">
-              <span class="theme-side theme-dark">☾</span>
-              <span class="theme-knob"></span>
-              <span class="theme-side theme-light">☀</span>
-            </button>
-            <small>Claro</small>
-          </div>
-        </div>
-
-        <div class="period-card">
-          <label for="periodMode">Visão</label>
-          <select id="periodMode">
-            <option value="month">Mês selecionado</option>
-            <option value="year">Ano inteiro</option>
-            <option value="custom">Intervalo específico</option>
-          </select>
-          <label class="period-year">
-            Ano
-            <input id="yearInput" type="number" min="2020" max="2100" step="1" />
-          </label>
-          <div id="customRange" class="range-fields" hidden>
-            <label>
-              De
-              <input id="rangeStart" type="date" />
-            </label>
-            <label>
-              Até
-              <input id="rangeEnd" type="date" />
-            </label>
-          </div>
-        </div>
-
-        <div class="month-card">
-          <label for="monthInput">Mês</label>
-          <input id="monthInput" type="month" />
+        <div class="profile-card">
+          <button type="button">Meu perfil</button>
+          <button type="button">Sair</button>
         </div>
       </aside>
 
       <main>
         <header class="app-header">
-          <div class="page-brand">
-            <span class="brand-mark">OP</span>
-            <div>
-              <strong>Hub Operação</strong>
-              <small>Controle financeiro</small>
-            </div>
-          </div>
+          <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Ocultar menu">
+            <span class="sidebar-toggle-icon" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
         </header>
 
         <div id="dashboardView" class="app-view active-view">
@@ -441,6 +489,8 @@
       </main>
     </div>
 
-    <script src="./app.js?v=20260628-13"></script>
+    <script src="./app.js?v=20260628-24"></script>
   </body>
 </html>
+
+

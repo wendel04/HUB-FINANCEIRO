@@ -1,4 +1,4 @@
-const money = new Intl.NumberFormat("pt-BR", {
+﻿const money = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
 });
@@ -27,6 +27,17 @@ const detailView = document.querySelector("#detailView");
 const historyView = document.querySelector("#historyView");
 const chart = document.querySelector("#profitChart");
 const ctx = chart.getContext("2d");
+const brandNameLabel = document.querySelector("#brandNameLabel");
+const brandSubtitleLabel = document.querySelector("#brandSubtitleLabel");
+const brandMark = document.querySelector("#brandMark");
+const brandPhotoInput = document.querySelector("#brandPhotoInput");
+const brandEditBtn = document.querySelector("#brandEditBtn");
+const brandEditor = document.querySelector("#brandEditor");
+const brandNameInput = document.querySelector("#brandNameInput");
+const brandSubtitleInput = document.querySelector("#brandSubtitleInput");
+const brandSaveBtn = document.querySelector("#brandSaveBtn");
+const brandCancelBtn = document.querySelector("#brandCancelBtn");
+const brandRemovePhotoBtn = document.querySelector("#brandRemovePhotoBtn");
 
 const today = new Date();
 const initialMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
@@ -36,13 +47,113 @@ let viewGoal = state.profitGoal;
 let viewDescription = "Veja resultado, caixa e metas do mês em uma única tela.";
 let isEditableView = true;
 let activeView = "dashboard";
+let brandSettings = loadBrandSettings();
 
 function storageKey(month) {
   return `operacao-hub:${month}`;
 }
 
+function brandStorageKey() {
+  return "operacao-hub:brand";
+}
+
 function isDataKey(key) {
   return key.startsWith("operacao-hub:") && /^\d{4}-\d{2}$/.test(key.replace("operacao-hub:", ""));
+}
+
+function loadBrandSettings() {
+  const fallback = {
+    name: "Hub Operação",
+    subtitle: "Controle financeiro",
+    photo: "",
+  };
+  const raw = localStorage.getItem(brandStorageKey());
+  if (!raw) return fallback;
+
+  try {
+    return { ...fallback, ...JSON.parse(raw) };
+  } catch {
+    return fallback;
+  }
+}
+
+function saveBrandSettings() {
+  localStorage.setItem(brandStorageKey(), JSON.stringify(brandSettings));
+}
+
+function brandInitials(name) {
+  const words = String(name || "OP")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!words.length) return "OP";
+  return words
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
+}
+
+function syncBrandInputs() {
+  if (brandNameInput) brandNameInput.value = brandSettings.name;
+  if (brandSubtitleInput) brandSubtitleInput.value = brandSettings.subtitle;
+}
+
+function applyBrandSettings() {
+  brandNameLabel.textContent = brandSettings.name || "Hub Operação";
+  brandSubtitleLabel.textContent = brandSettings.subtitle || "Controle financeiro";
+
+  if (brandSettings.photo) {
+    brandMark.textContent = "";
+    brandMark.style.backgroundImage = `url("${brandSettings.photo}")`;
+    brandMark.classList.add("has-photo");
+  } else {
+    brandMark.textContent = brandInitials(brandSettings.name);
+    brandMark.style.backgroundImage = "";
+    brandMark.classList.remove("has-photo");
+  }
+
+  syncBrandInputs();
+}
+
+function setBrandEditorVisible(visible) {
+  brandEditor.hidden = !visible;
+  brandEditBtn.setAttribute("aria-expanded", visible ? "true" : "false");
+  if (visible) {
+    syncBrandInputs();
+    brandNameInput.focus();
+  }
+}
+
+function saveBrandFromInputs() {
+  brandSettings = {
+    ...brandSettings,
+    name: brandNameInput.value.trim() || "Hub Operação",
+    subtitle: brandSubtitleInput.value.trim() || "Controle financeiro",
+  };
+  saveBrandSettings();
+  applyBrandSettings();
+  setBrandEditorVisible(false);
+}
+
+function saveBrandPhoto(file) {
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    alert("Escolha uma imagem para usar como foto do hub.");
+    return;
+  }
+  if (file.size > 1600000) {
+    alert("Essa imagem está muito pesada. Use uma foto menor para salvar no navegador.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    brandSettings = { ...brandSettings, photo: reader.result };
+    saveBrandSettings();
+    applyBrandSettings();
+  });
+  reader.readAsDataURL(file);
 }
 
 function applyTheme(theme) {
@@ -51,6 +162,12 @@ function applyTheme(theme) {
   themeToggle?.setAttribute("aria-pressed", selectedTheme === "light" ? "true" : "false");
   localStorage.setItem("operacao-hub:theme", selectedTheme);
   drawChart();
+}
+
+function setSidebarCollapsed(collapsed) {
+  appShell.classList.toggle("sidebar-collapsed", collapsed);
+  sidebarToggle.setAttribute("aria-label", collapsed ? "Mostrar menu" : "Ocultar menu");
+  localStorage.setItem("operacao-hub:sidebar-collapsed", collapsed ? "1" : "0");
 }
 
 function localDateString(date = new Date()) {
@@ -469,8 +586,12 @@ function exportDataBackup() {
 
   const backup = {
     app: "operacao-hub",
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
+    settings: {
+      brand: brandSettings,
+      theme: localStorage.getItem("operacao-hub:theme") || "dark",
+    },
     data,
   };
 
@@ -487,6 +608,12 @@ function restoreDataBackup(file) {
       Object.entries(backup.data).forEach(([key, value]) => {
         if (isDataKey(key)) localStorage.setItem(key, JSON.stringify(value));
       });
+
+      if (backup.settings?.brand) {
+        brandSettings = { ...brandSettings, ...backup.settings.brand };
+        saveBrandSettings();
+        applyBrandSettings();
+      }
 
       state = loadState(state.month);
       setDefaultDates();
@@ -527,9 +654,9 @@ function drawChart() {
   const profits = viewDays.map(dayProfit);
   const maxValue = Math.max(100, ...profits.map(Math.abs), ...expenses);
   const isLightTheme = document.body.dataset.theme === "light";
-  const labelColor = isLightTheme ? "#64748b" : "#8ea0b8";
-  const gridColor = isLightTheme ? "rgba(74, 94, 121, 0.14)" : "rgba(142, 160, 184, 0.16)";
-  const zeroLineColor = isLightTheme ? "rgba(74, 94, 121, 0.24)" : "rgba(142, 160, 184, 0.28)";
+  const labelColor = isLightTheme ? "#0756d8" : "#0866ff";
+  const gridColor = isLightTheme ? "rgba(7, 86, 216, 0.14)" : "rgba(8, 102, 255, 0.13)";
+  const zeroLineColor = isLightTheme ? "rgba(7, 86, 216, 0.24)" : "rgba(8, 102, 255, 0.22)";
 
   ctx.clearRect(0, 0, width, height);
 
@@ -553,18 +680,18 @@ function drawChart() {
   const step = plotWidth / Math.max(viewDays.length - 1, 1);
   const yFor = (value) => zeroY - (value / maxValue) * (plotHeight / 2 - 10);
 
-  drawBars(expenses, step, yFor, zeroY, "#ff6b5e");
-  drawArea(profits, step, yFor, zeroY, "rgba(37, 209, 125, 0.16)");
-  drawLine(profits, step, yFor, "#25d17d");
+  drawBars(expenses, step, yFor, zeroY, "#ff5f57");
+  drawArea(profits, step, yFor, isLightTheme ? "rgba(4, 120, 87, 0.12)" : "rgba(34, 229, 130, 0.14)");
+  drawLine(profits, step, yFor, isLightTheme ? "#047857" : "#22e582");
 
   ctx.fillStyle = labelColor;
-  ctx.font = "700 12px Poppins, system-ui, sans-serif";
+  ctx.font = "700 12px Inter, system-ui, sans-serif";
   ctx.fillText("Lucro", padding, 20);
-  ctx.fillStyle = "#25d17d";
+  ctx.fillStyle = isLightTheme ? "#047857" : "#22e582";
   ctx.fillRect(padding + 42, 12, 16, 8);
   ctx.fillStyle = labelColor;
   ctx.fillText("Gastos", padding + 72, 20);
-  ctx.fillStyle = "#ff6b5e";
+  ctx.fillStyle = "#ff5f57";
   ctx.fillRect(padding + 120, 12, 16, 8);
 }
 
@@ -627,6 +754,7 @@ function setActiveView(view) {
   navLinks.forEach((link) => {
     link.classList.toggle("active", link.dataset.view === activeView);
   });
+  document.querySelector(".sidebar-submenu a.active")?.closest("details")?.setAttribute("open", "");
   const hashByView = {
     dashboard: "#dashboard",
     detail: "#detalhamento",
@@ -755,11 +883,36 @@ themeToggle?.addEventListener("click", () => {
   applyTheme(document.body.dataset.theme === "light" ? "dark" : "light");
 });
 
+brandEditBtn.addEventListener("click", () => {
+  setBrandEditorVisible(brandEditor.hidden);
+});
+
+brandSaveBtn.addEventListener("click", saveBrandFromInputs);
+
+brandCancelBtn.addEventListener("click", () => {
+  setBrandEditorVisible(false);
+  syncBrandInputs();
+});
+
+brandRemovePhotoBtn.addEventListener("click", () => {
+  brandSettings = { ...brandSettings, photo: "" };
+  saveBrandSettings();
+  applyBrandSettings();
+});
+
+brandPhotoInput.addEventListener("change", (event) => {
+  const [file] = event.target.files;
+  saveBrandPhoto(file);
+  event.target.value = "";
+});
+
+brandEditor.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") saveBrandFromInputs();
+  if (event.key === "Escape") setBrandEditorVisible(false);
+});
+
 sidebarToggle.addEventListener("click", () => {
-  const collapsed = appShell.classList.toggle("sidebar-collapsed");
-  sidebarToggle.textContent = collapsed ? "Mostrar menu" : "Menu";
-  sidebarToggle.setAttribute("aria-label", collapsed ? "Mostrar menu" : "Ocultar menu");
-  localStorage.setItem("operacao-hub:sidebar-collapsed", collapsed ? "1" : "0");
+  setSidebarCollapsed(!appShell.classList.contains("sidebar-collapsed"));
 });
 
 document.querySelector("#resetBtn").addEventListener("click", () => {
@@ -824,14 +977,15 @@ yearInput.value = today.getFullYear();
 rangeStart.value = `${today.getFullYear()}-01-01`;
 rangeEnd.value = `${today.getFullYear()}-12-31`;
 if (localStorage.getItem("operacao-hub:sidebar-collapsed") === "1") {
-  appShell.classList.add("sidebar-collapsed");
-  sidebarToggle.textContent = "Mostrar menu";
-  sidebarToggle.setAttribute("aria-label", "Mostrar menu");
+  setSidebarCollapsed(true);
 }
 
+applyBrandSettings();
 applyTheme(localStorage.getItem("operacao-hub:theme") || "dark");
 state = loadState(initialMonth);
 setDefaultDates();
 render();
 setActiveView(viewFromHash(location.hash));
 setInterval(checkMonthRollover, 60000);
+
+
